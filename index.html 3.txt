@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agrotech Derivative Analysis: FFB Growth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="p-6 bg-emerald-700 text-white">
+            <h1 class="text-3xl font-bold">FFB Growth Rate Analysis</h1>
+            <p class="text-emerald-100 mt-2">Modeling Oil Palm development using differential calculus.</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            <section>
+                <h2 class="text-xl font-semibold text-emerald-800">The Problem</h2>
+                <p class="mt-2 text-slate-600">In Malaysian oil palm plantations, predicting the precise rate of Fresh Fruit Bunch (FFB) mass accumulation is crucial for logistical planning. If the rate of growth is slowing down significantly, it may indicate the bunch has reached maturity, signaling the optimal time for harvest.</p>
+            </section>
+
+            <section class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                <h2 class="text-lg font-semibold text-emerald-800">Mathematical Model</h2>
+                <div class="grid md:grid-cols-2 gap-4 mt-4">
+                    <div class="bg-white p-4 rounded shadow-sm">
+                        <p class="text-sm font-bold text-emerald-700">Growth Function f(x)</p>
+                        <p class="text-lg font-mono">f(x) = 0.05x³ - 1.2x² + 10x + 2</p>
+                        <p class="text-xs text-slate-500 mt-1">Mass (kg) vs Time (Weeks 5-20)</p>
+                    </div>
+                    <div class="bg-white p-4 rounded shadow-sm">
+                        <p class="text-sm font-bold text-emerald-700">Growth Rate f'(x)</p>
+                        <p class="text-lg font-mono">f'(x) = 0.15x² - 2.4x + 10</p>
+                        <p class="text-xs text-slate-500 mt-1">Rate of Change (kg/week)</p>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <div class="relative w-full h-[400px]">
+                    <canvas id="growthChart"></canvas>
+                </div>
+                <p class="text-center text-xs text-slate-400 mt-2">Click on any data point on the curve to calculate the derivative.</p>
+            </section>
+
+            <section id="resultsPanel" class="hidden p-4 rounded-xl border-2 border-emerald-200 bg-emerald-50 text-emerald-900 transition-all">
+                <h3 class="font-bold">Interactive Analysis Result</h3>
+                <p id="analysisText" class="mt-2"></p>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        const labels = Array.from({length: 16}, (_, i) => i + 5);
+        const dataPoints = labels.map(x => 0.05 * Math.pow(x, 3) - 1.2 * Math.pow(x, 2) + 10 * x + 2);
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'FFB Mass (kg)',
+                    data: dataPoints,
+                    borderColor: '#047857',
+                    backgroundColor: '#059669',
+                    tension: 0.3,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                onClick: (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const x = labels[index];
+                        const y = dataPoints[index].toFixed(2);
+                        
+                        const derivative = (0.15 * Math.pow(x, 2) - 2.4 * x + 10).toFixed(2);
+                        
+                        const panel = document.getElementById('resultsPanel');
+                        const text = document.getElementById('analysisText');
+                        
+                        panel.classList.remove('hidden');
+                        text.innerHTML = `At Week <b>${x}</b>, the total weight is <b>${y} kg</b>. <br/>
+                                         The instantaneous growth rate is <b>${derivative} kg/week</b>.<br/>
+                                         <span class="text-sm opacity-80 mt-2 block">${derivative > 0 ? 'The bunch is still actively gaining mass.' : 'The growth rate has stabilized or started to decline; harvest might be imminent.'}</span>`;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
